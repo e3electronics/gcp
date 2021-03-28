@@ -19,16 +19,16 @@
 #include "common/cs_dbg.h"
 #include "common/json_utils.h"
 #include "common/mbuf.h"
+#include "frozen.h"
 #include "mbedtls/asn1.h"
 #include "mbedtls/bignum.h"
 #include "mbedtls/pk.h"
-#include "frozen.h"
-#include "mgos_mongoose_internal.h"
-#include "mongoose.h"
 #include "mgos_event.h"
+#include "mgos_mongoose_internal.h"
 #include "mgos_mqtt.h"
 #include "mgos_sys_config.h"
 #include "mgos_timers.h"
+#include "mongoose.h"
 static mbedtls_pk_context s_token_key;
 extern int mg_ssl_if_mbed_random(void *ctx, unsigned char *buf, size_t len);
 struct mg_str mgos_gcp_get_device_id(void) {
@@ -344,8 +344,11 @@ bool mgos_gcp_init(void) {
     char *topic = NULL;
     mg_asprintf(&topic, 0, "/devices/%.*s/config", (int) did.len, did.p);
     mgos_mqtt_global_subscribe(mg_mk_str(topic), mgos_gcp_config_ev, state);
-    mgos_mqtt_global_subscribe(mg_mk_str("/devices/esp32-ye7ha39/config"), mgos_gcp_config_ev, state);
+
     free(topic);
+    state->want_acks++;
+    mgos_mqtt_global_subscribe(mg_mk_str("/devices/esp32-ye7ha39/config"),
+                               mgos_gcp_config_ev, state);
     state->want_acks++;
   }
   if (mgos_sys_config_get_gcp_enable_commands()) {
