@@ -344,11 +344,7 @@ bool mgos_gcp_init(void) {
     char *topic = NULL;
     mg_asprintf(&topic, 0, "/devices/%.*s/config", (int) did.len, did.p);
     mgos_mqtt_global_subscribe(mg_mk_str(topic), mgos_gcp_config_ev, state);
-
     free(topic);
-    state->want_acks++;
-    mgos_mqtt_global_subscribe(mg_mk_str("/devices/esp32-ye7ha39/config"),
-                               mgos_gcp_config_ev, state);
     state->want_acks++;
   }
   if (mgos_sys_config_get_gcp_enable_commands()) {
